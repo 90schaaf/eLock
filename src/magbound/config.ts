@@ -1,17 +1,28 @@
 import {config} from "../server";
+import {process} from "./service";
 import {RawData} from "ws";
+import {WebSocket} from "ws";
 
 export const magboundProxyConfig: config = {
     portNumber: 8080,
     commands:
         {
-            onConnect: () => {
+            onConnect: function onConnect(this: WebSocket) {
                 console.log("Magbound connected")
-                //this.send("Welcome to the magbound server!")
+                this.send(JSON.stringify({ message: "Welcome to the magbound server!" }))
             },
             onData: function (data: RawData) {
-                console.log("Magbound data", data);
-                this.send("hello");
+                try  {
+                    const input = JSON.parse( data.toString());
+                    console.log("Magbound data", input);
+                    process(input);
+                }
+                catch(error: unknown)
+                {
+                    // handle error -> unlock lock
+                }
+
+
             },
 
             // onData: (this: WebSocket, data: RawData) => {

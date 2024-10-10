@@ -20,6 +20,20 @@
             }
         ],
         "variable": "lockState"
+    },
+    {
+        "key": "data",
+        "type": "componentState",
+        "event": "any",
+        "actions": [
+            {
+                "type": "updateVariable",
+                "value": "{trigger}",
+                "variable": "message"
+            }
+        ],
+        "channel": "generic-custom-toy-a",
+        "parsedKey": "data"
     }
 ],
     "jobs": {
@@ -47,13 +61,19 @@
         "name": "State",
         "type": "toggle",
         "value": "0"
+    },
+    {
+        "id": "message",
+        "name": "",
+        "type": "textarea",
+        "value": "-"
     }
 ],
     "controlPresets": [],
     "media": {
-    "patterns": {},
     "audio": {},
-    "voices": {}
+    "voices": {},
+    "patterns": {}
 },
     "customFunctions": ""
 }
