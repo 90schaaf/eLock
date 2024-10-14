@@ -54,6 +54,21 @@
                             }
                         ],
                         "variable": "lockState"
+                    },
+                    {
+                        "type": "variableChange",
+                        "actions": [
+                            {
+                                "key": "lockState",
+                                "type": "updateComponent",
+                                "value": "resetting",
+                                "action": "setValue",
+                                "channel": "generic-custom-toy-a",
+                                "requiredExpression": "{trigger}==1"
+                            }
+                        ],
+                        "variable": "reset",
+                        "valueChange": true
                     }
                 ]
             }
@@ -81,6 +96,15 @@
         "name": "",
         "type": "textarea",
         "value": "-"
+    },
+    {
+        "id": "reset",
+        "up": "1",
+        "down": "0",
+        "name": "Reset",
+        "type": "push",
+        "value": "1",
+        "description": "Unlocks and reset timer"
     }
 ],
     "controlPresets": [],

@@ -1,51 +1,54 @@
-export const process =  (input: unknown): void => {
+import client  from "./client";
+
+export const process =  async (input: unknown) => {
     if(isLockCommand(input))
     {
         if(isUnlockingCommand(input))
         {
-            console.log("UNLOCKING")
+            await client.unlock()
             return;
         }
 
         if(isLockingCommand(input))
         {
-            console.log("LOCKING");
+            await client.lock();
             return
         }
 
+        if(isResettingCommand(input)) {
+            await client.reset();
+            return;
+        }
+
         console.error("UNKNOWN LOCKING COMMAND", input);
-        // TODO unlock lock
+        await client.reset();
 
         return;
     }
 
     // check for other magbound commands like time or...
-    console.log("INPUT IS *NOT* LOCK COMMAND", input);
+    console.log("UNKNOWN COMMAND", input);
 
 }
 
-
-
-type command = lock | unlock | time; // examples
-
-type lock = {
-    command: 'lock'
-}
 
 const locking = "locking";
 const unloking = "unlocking";
+const resetting = "resetting";
 
-type lockStates = typeof locking| typeof unloking
+type lockStates = typeof locking | typeof unloking | typeof resetting;
 type lockCommand = {lockState: lockStates};
+
 type lockingCommand = {lockState: typeof locking}
 type unlockingCommand = {lockState: typeof unloking};
+type resettingCommand = {lockState: typeof resetting};
 
 function isLockCommand(input: unknown): input is lockCommand {
     return (
         typeof input === 'object' &&
         input !== null &&
         'lockState' in input &&
-        (input.lockState === locking || input.lockState === unloking)
+        (input.lockState === locking || input.lockState === unloking || input.lockState === resetting)
     );
 }
 
@@ -57,12 +60,7 @@ function isUnlockingCommand(command: lockCommand): command is unlockingCommand  
     return command.lockState === unloking;
 }
 
-type unlock = {
-    command: 'unlock'
-}
-
-type time = {
-    command: 'time',
-    seconds: number
+function isResettingCommand(command: lockCommand): command is resettingCommand  {
+    return command.lockState === resetting;
 }
 

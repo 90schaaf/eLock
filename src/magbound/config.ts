@@ -11,14 +11,18 @@ export const magboundProxyConfig: config = {
                 console.log("Magbound connected")
                 this.send(JSON.stringify({ message: "Welcome to the magbound server!" }))
             },
-            onData: function (data: RawData) {
-                try  {
-                    const input = JSON.parse( data.toString());
-                    console.log("Magbound data", input);
-                    process(input);
-                }
-                catch(error: unknown)
-                {
+            onData: async function (data: RawData) {
+                try {
+                    const input = JSON.parse(data.toString());
+                    console.debug("Magbound data", input);
+                    await process(input).catch(error => {
+                        // TODO::
+                        //  * unlock!!
+                        //  * send message to xtoys
+                        console.error("Error while executing command ", error);
+
+                    });
+                } catch (error: unknown) {
                     // handle error -> unlock lock
                 }
 
