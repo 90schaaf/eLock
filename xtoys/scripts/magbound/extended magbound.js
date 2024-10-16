@@ -69,6 +69,21 @@
                         ],
                         "variable": "reset",
                         "valueChange": true
+                    },
+                    {
+                        "type": "variableChange",
+                        "actions": [
+                            {
+                                "key": "lockTime",
+                                "type": "updateComponent",
+                                "value": "{lockTime}",
+                                "action": "setValue",
+                                "channel": "generic-custom-toy-a"
+                            }
+                        ],
+                        "variable": "setTime",
+                        "valueChange": null,
+                        "requiredExpression": "{trigger}==1"
                     }
                 ]
             }
@@ -105,6 +120,20 @@
         "type": "push",
         "value": "1",
         "description": "Unlocks and reset timer"
+    },
+    {
+        "id": "lockTime",
+        "name": "Lock time",
+        "type": "timer",
+        "value": null
+    },
+    {
+        "id": "setTime",
+        "up": "0",
+        "down": "1",
+        "name": "Set time",
+        "type": "push",
+        "value": "0"
     }
 ],
     "controlPresets": [],

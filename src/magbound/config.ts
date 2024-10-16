@@ -1,7 +1,8 @@
 import {config} from "../server";
-import {process} from "./service";
+import {process, init} from "./service";
 import {RawData} from "ws";
 import {WebSocket} from "ws";
+import client from "./client";
 
 export const magboundProxyConfig: config = {
     portNumber: 8080,
@@ -10,6 +11,8 @@ export const magboundProxyConfig: config = {
             onConnect: function onConnect(this: WebSocket) {
                 console.log("Magbound connected")
                 this.send(JSON.stringify({ message: "Welcome to the magbound server!" }))
+
+                init(); // TODO maybe set xtoys to client.ts parameter values
             },
             onData: async function (data: RawData) {
                 try {

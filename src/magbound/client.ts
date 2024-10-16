@@ -1,16 +1,36 @@
 const config = {
     baseUrl: "http://192.168.1.112",
-    commands: { //https://stackoverflow.com/questions/35038857/setting-query-string-using-fetch-get-request
-        lock: "setLock?t_state=1",
+    maxMinutesLockedUp: 120, // absolute max lock time in minutes that can't be overwritten from xToys
+    minutesDefaultLockTime: 2,
+    commands: {
+        //TODO:
+        // * https://stackoverflow.com/questions/35038857/setting-query-string-using-fetch-get-request
+        // * revamp lock / unlock / setTime commands -> all same endpoint "setLock" with different query params
+        lock: "setLock?t_state=1",  // TODO should be able to be combined with setTime
         unlock: "setLock?t_state=0",
+        setTime: "&i_state=", // does not work on it's own must be send with locking command
         reset: "reset",
         state: "isAlive"
     }
 }
 
+const init = () => {
+   setDesiredLockTime(config.minutesDefaultLockTime);
+}
+
+let desiredMinutesLockedUp = 0;
+
+const setDesiredLockTime = (desiredMinutesLockedUpIn: number): void => {
+    desiredMinutesLockedUp = Math.min(desiredMinutesLockedUpIn, config.maxMinutesLockedUp);
+    console.info("set desired time", desiredMinutesLockedUp);
+}
+
 const lock = async() => {
-    console.info("LOCKING")
-    await execute(config.commands.lock);
+    const millisecondsToBeLockedUp = desiredMinutesLockedUp * 60 * 1000;
+
+    console.info("LOCKING for " + desiredMinutesLockedUp + " minutes...")
+
+    await execute(config.commands.lock + config.commands.setTime + millisecondsToBeLockedUp);
 }
 
 const unlock = async () => {
@@ -28,13 +48,20 @@ const state = async() => {
     return await execute(config.commands.state);
 }
 
+const setExactLockTime = (minutesToBeLockedUp: number) => {
+    setDesiredLockTime(minutesToBeLockedUp);
+}
+
 const execute = async(command: string) => {
     // try {
-        const response = await fetch(config.baseUrl + "/" + command);
+    const url = config.baseUrl + "/" + command;
+    console.log("calling " + url);
+    const response = await fetch(url);
         const text = await response.text();
 
-        console.log("RESPONSE LOCK", response);
-        return text;
+        return {
+            status: response.status,
+            data: text};
     // }
     // catch(error: unknown) {
     //     // TODO unlock -> check for recursion!
@@ -42,4 +69,5 @@ const execute = async(command: string) => {
     // }
 }
 
-export default {lock, unlock, reset, state};
+
+export default {lock, unlock, reset, state, setExactLockTime, init};
