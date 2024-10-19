@@ -116,6 +116,12 @@ function syncTimer(websocket: WebSocket) {
         timeUpdater = global.setInterval(async () => {
             const state = await client.getState();
             const message = {updateLocktime: state.remainingSeconds};
+
+            if(!message.updateLocktime)
+            {
+                clearInterval(timeUpdater);
+            }
+
             websocket.send(JSON.stringify(message));
         },  1000);
 }

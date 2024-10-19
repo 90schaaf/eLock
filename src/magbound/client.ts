@@ -77,9 +77,7 @@ function isLockedOrUnlocked(input: string): input is "Locked" | "Unlocked" {
 
 const execute = async(command: string, query?: Record<string, string>) => {
     // try {
-    new URLSearchParams({test: "hello"})
-
-    const url = config.baseUrl + "/" + command +  new URLSearchParams(query).toString();
+    const url = config.baseUrl + "/" + command + "?" +  new URLSearchParams(query);
     console.log("calling " + url);
     const response = await fetch(url);
         const text = await response.text();
