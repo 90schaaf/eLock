@@ -1,17 +1,16 @@
 import {WebSocket, WebSocketServer, RawData} from "ws";
 
 type commands = {
-    onConnect: (this: WebSocket) => void
-    onData: (this: WebSocket, data: RawData) => void
-    onDisconnect: (this: WebSocket) => void
-    onError: (this: WebSocket) => void
+    onConnect: (this: WebSocket) => void;
+    onData: (this: WebSocket, data: RawData) => Promise<void>;
+    onDisconnect: () => void;
+    onError: (this: WebSocket, error: Error) => Promise<void>
 }
 
 export type config = {
     portNumber: number,
     commands: commands
 }
-
 
 export function init(config: config): void {
     const server = new WebSocketServer({port: config.portNumber});
@@ -21,9 +20,5 @@ export function init(config: config): void {
         socket.on("close", config.commands.onDisconnect);
         socket.on("message", config.commands.onData)
         socket.on("error", config.commands.onError);
-
-
     })
-
-
 }

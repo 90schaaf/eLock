@@ -58,6 +58,7 @@ const getState = async () => {
 
     if(!isLockedOrUnlocked(lockState))
     {
+        await unlock(); // something might be strange...
         throw new Error("Unknown lock state " + lockState); // TODO improve
     }
 
@@ -72,9 +73,7 @@ function isLockedOrUnlocked(input: string): input is "Locked" | "Unlocked" {
 }
 
 const execute = async(command: string, query?: Record<string, string>) => {
-    // try {
     const url = config.baseUrl + "/" + command + "?" +  new URLSearchParams(query);
-    console.log("calling " + url);
     const response = await fetch(url);
         const text = await response.text();
 
@@ -82,6 +81,5 @@ const execute = async(command: string, query?: Record<string, string>) => {
             status: response.status,
             data: text};
 }
-
 
 export default {lock, unlock, reset, state, getState};

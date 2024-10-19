@@ -1,36 +1,35 @@
-import {config} from "../server";
-import {process} from "./service";
+import {process, sendChatMessage, handleError, unlock} from "./service";
 import {RawData} from "ws";
 import {WebSocket} from "ws";
-import client from "./client";
 
-export const magboundProxyConfig: config = {
+export const magboundProxyConfig = {
     portNumber: 8080,
     commands:
         {
             onConnect: function onConnect(this: WebSocket) {
                 console.log("Magbound connected")
-                this.send(JSON.stringify({ message: "Welcome to the magbound server!" }))
-                this.send(JSON.stringify({ chat: "Welcome chat!" }))
+                sendChatMessage("Welcome to a true selfbondage experience!", this, "System")
             },
             onData: async function (this: WebSocket, data: RawData) {
                 try {
                     const input = JSON.parse(data.toString());
                     const command = input.command;
 
-                    await process(command, this).catch(error => {
-                        // TODO::
-                        //  * unlock!!
-                        //  * send message to xtoys
-                        console.error("Error while executing command ", error);
+                    await process(command, this).catch(async error => {
+                        await handleError("Some error happen while processing command " + command, this)
                     });
                 } catch (error: unknown) {
-                    // handle error -> unlock lock
+                    await handleError("Some error happen while processing data " + data, this)
+                    console.error("Error while executing command ", error);
                 }
-
-
             },
-            onDisconnect: () => {console.log("Magbound disconnected xxx")},
-            onError: (): void => console.log("Magbound error"),
+            onDisconnect: async () => {
+                await unlock();
+                console.info("Xtoys client disconnected. Unlocked!")
+            },
+            onError: async function (this: WebSocket, error: unknown) { // TODO test this!
+                await handleError("Some unexpected error " + error, this)
+                console.error("Error while executing command ", error);
+            }
         }
 }

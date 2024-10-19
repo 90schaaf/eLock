@@ -48,58 +48,10 @@ export const process =  async (input: unknown, websocket: WebSocket) => {
     }
 
     console.error("Error: Could not process magbound command ", input);
-    // if(isLockCommand(input))
-    // {
-    //     if(isUnlockingCommand(input))
-    //     {
-    //         await client.unlock()
-    //
-    //         clearInterval(timeUpdater);
-    //         return;
-    //     }
-    //
-    //     if(isLockingCommand(input))
-    //     {
-    //         await client.lock();
-    //
-    //         websocket.send(JSON.stringify({aa: {bb: "cc", dd: "ee"}}))
-    //
-    //         timeUpdater = global.setInterval(async () => {
-    //             const state = await client.getState();
-    //             const message = {updateLocktime: state.remainingSeconds};
-    //             websocket.send(JSON.stringify(message));
-    //         },  1000);
-    //
-    //         return
-    //     }
-    //
-    //     if(isResettingCommand(input)) {
-    //         await client.reset();
-    //         return;
-    //     }
-    //
-    //     console.error("UNKNOWN LOCKING COMMAND", input);
-    //     await client.reset();
-    //
-    //     return;
-    // }
-    //
-    // if(isTimeCommand(input)) {
-    //     // command does not lock magbound, only set time in code!
-    //     await client.setExactLockTime(input.lockTime);
-    //
-    //     // console.error("UNKNOWN TIME COMMAND", input);
-    //     // await client.reset();
-    //
-    //     return;
-    // }
-    //
-    // // check for other magbound commands like time or...
-    // console.log("UNKNOWN COMMAND", input);
-}
+   }
 
 
-async function unlock() {
+export async function unlock() {
     await client.unlock();
     clearInterval(timeUpdater);
 }
@@ -126,9 +78,22 @@ function syncTimer(websocket: WebSocket) {
         },  1000);
 }
 
-function sendError(message: string, webSocket: WebSocket) {
-    const error = JSON.stringify({magboundError:message});
+// notifies chat, send unlock command & logs it
+export async function handleError(message: string, webSocket: WebSocket) {
+    const error = JSON.stringify({magboundError: message});
     webSocket.send(error)
+
+    console.error("Some error happened", error);
+    sendChatMessage("Attention! Some error happened", webSocket, "System");
+    sendChatMessage("Error: ", webSocket, "System");
+    sendChatMessage("Unlocking lock. Please hold on...", webSocket, "System");
+    await unlock();
+    sendChatMessage("...Lock unlocked! @chat please check if captive is ok!", webSocket, "System");
+}
+
+export function sendChatMessage(message: string, webSocket: WebSocket, author?:string,) {
+    message = author ? "** " + author + " **\n" + message: message;
+    webSocket.send(JSON.stringify({ chat: message }))
 }
 
 function isMagboundCommand(input: unknown): input is magboundCommand {
@@ -180,47 +145,3 @@ type randomTimeLockCommand = lockCommand & {
     lowerSecondsLockedUpLimit: number;
     upperSecondsLockedUpLimit: number;
 }
-
-//
-// const locking = "locking";
-// const unloking = "unlocking";
-// const resetting = "resetting";
-//
-// type lockStates = typeof locking | typeof unloking | typeof resetting;
-//
-// type lockCommand = {lockState: lockStates};
-// type timeCommand = {lockTime: number};
-//
-// type lockingCommand = {lockState: typeof locking}
-// type unlockingCommand = {lockState: typeof unloking};
-// type resettingCommand = {lockState: typeof resetting};
-//
-// function isLockCommand(input: unknown): input is lockCommand {
-//     return (
-//         typeof input === 'object' &&
-//         input !== null &&
-//         'lockState' in input &&
-//         (input.lockState === locking || input.lockState === unloking || input.lockState === resetting)
-//     );
-// }
-//
-// function isTimeCommand(input: unknown): input is timeCommand {
-//     return (
-//         typeof input === 'object' &&
-//         input !== null &&
-//         'lockTime' in input
-//     );
-// }
-//
-// function isLockingCommand(command: lockCommand): command is lockingCommand  {
-//     return command.lockState === locking;
-// }
-//
-// function isUnlockingCommand(command: lockCommand): command is unlockingCommand  {
-//     return command.lockState === unloking;
-// }
-//
-// function isResettingCommand(command: lockCommand): command is resettingCommand  {
-//     return command.lockState === resetting;
-// }
-
