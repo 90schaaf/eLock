@@ -85,7 +85,7 @@ export async function handleError(message: string, webSocket: WebSocket) {
 
     console.error("Some error happened", error);
     sendChatMessage("Attention! Some error happened", webSocket, "System");
-    sendChatMessage("Error: ", webSocket, "System");
+    sendChatMessage("Error: " + error, webSocket, "System");
     sendChatMessage("Unlocking lock. Please hold on...", webSocket, "System");
     await unlock();
     sendChatMessage("...Lock unlocked! @chat please check if captive is ok!", webSocket, "System");
