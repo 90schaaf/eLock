@@ -38,9 +38,9 @@ export const process =  async (input: unknown, websocket: WebSocket) => {
         {
             secondsToBeLockedUp = randomize(input)
         }
-        console.log("A) ", secondsToBeLockedUp)
+
         secondsToBeLockedUp = securityConfig.limitLocktime(secondsToBeLockedUp);
-        console.log("B) ", secondsToBeLockedUp)
+
         await client.lock(secondsToBeLockedUp*msInSeconds);
         syncTimer(websocket);
 

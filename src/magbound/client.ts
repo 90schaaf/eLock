@@ -30,7 +30,6 @@ const config = {
 }
 
 const lock = async(milliseconds: number) => {
-    console.log("C)", milliseconds)
     const lock = config.endpoints.lock
     const query =  {...lock.queryParams, i_state: milliseconds.toString()}
 
@@ -62,9 +61,6 @@ const getState = async () => {
         throw new Error("Unknown lock state " + lockState); // TODO improve
     }
 
-    console.log("remaining ms", remainingMilliseconds);
-    console.log("rem in sec", remainingMilliseconds / 1000);
-    console.log("rem in sec", remainingMilliseconds / 1000 / 60);
     return {
         remainingSeconds: remainingMilliseconds / 1000,
         state: lockState
