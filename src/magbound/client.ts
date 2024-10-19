@@ -1,55 +1,56 @@
 const config = {
     baseUrl: "http://192.168.1.112",
-    maxMinutesLockedUp: 120, // absolute max lock time in minutes that can't be overwritten from xToys
-    minutesDefaultLockTime: 2,
-    commands: {
-        //TODO:
-        // * revamp lock / unlock / setTime commands -> all same endpoint "setLock" with different query params
-        lock: "setLock?t_state=1",  // TODO should be able to be combined with setTime
-        unlock: "setLock?t_state=0",
-        setTime: "&i_state=", // does not work on it's own must be send with locking command
-        reset: "reset",
-        state: "isAlive",  // maybe better use getTimer
-        getState: "getTimer"
+    endpoints: {
+        lock:
+        {
+            endpoint: "setLock",
+            queryParams:
+            {
+                t_state: "1"
+            }
+        },
+        unlock:
+        {
+            endpoint: "setUnlock",
+            queryParams:
+            {
+                t_state: "0"
+            }
+        },
+        reset: {
+            endpoint: "reset",
+        },
+        liveness: {
+            endpoint: "isAlive"
+        },
+        state: {
+            endpoint: "getTimer",
+        }
     }
 }
 
-const init = () => {
-   setDesiredLockTime(config.minutesDefaultLockTime);
-}
+const lock = async(milliseconds: number) => {
+    const lock = config.endpoints.lock
+    const query =  {...lock.queryParams, i_state: milliseconds.toString()}
 
-let desiredMinutesLockedUp = 0;
-
-const setDesiredLockTime = (desiredMinutesLockedUpIn: number): void => {
-    desiredMinutesLockedUp = Math.min(desiredMinutesLockedUpIn, config.maxMinutesLockedUp);
-    console.info("set desired time", desiredMinutesLockedUp);
-}
-
-const lock = async() => {
-    const millisecondsToBeLockedUp = desiredMinutesLockedUp * 60 * 1000;
-
-    console.info("LOCKING for " + desiredMinutesLockedUp + " minutes...")
-
-    await execute(config.commands.lock + config.commands.setTime + millisecondsToBeLockedUp);
+    await execute(lock.endpoint, query);
 }
 
 const unlock = async () => {
-    console.info("UNLOCKING")
-    await execute(config.commands.unlock)
+    await execute( config.endpoints.unlock.endpoint);
 }
 
 const reset = async () => {
-    console.info("RESET")
-    await execute(config.commands.reset);
+    await execute( config.endpoints.reset.endpoint);
 }
 
 const state = async() => {
     console.info("STATUS")
-    return await execute(config.commands.state);
+    await execute(config.endpoints.liveness.endpoint);
 }
 
 const getState = async () => {
-    const response = await execute(config.commands.getState);
+    const response = await execute(config.endpoints.state.endpoint);
     const data = response.data.split(";");
 
     const remainingMilliseconds = Number(data[0]);
@@ -70,13 +71,11 @@ function isLockedOrUnlocked(input: string): input is "Locked" | "Unlocked" {
     return input === "Locked" || input === "Unlocked";
 }
 
-const setExactLockTime = (minutesToBeLockedUp: number) => {
-    setDesiredLockTime(minutesToBeLockedUp);
-}
-
-const execute = async(command: string) => {
+const execute = async(command: string, query?: Record<string, string>) => {
     // try {
-    const url = config.baseUrl + "/" + command;
+    new URLSearchParams({test: "hello"})
+
+    const url = config.baseUrl + "/" + command +  new URLSearchParams(query).toString();
     console.log("calling " + url);
     const response = await fetch(url);
         const text = await response.text();
@@ -84,12 +83,7 @@ const execute = async(command: string) => {
         return {
             status: response.status,
             data: text};
-    // }
-    // catch(error: unknown) {
-    //     // TODO unlock -> check for recursion!
-    //     console.error("Error while executing command " + command, error);
-    // }
 }
 
 
-export default {lock, unlock, reset, state, setExactLockTime, getState, init};
+export default {lock, unlock, reset, state, getState};
