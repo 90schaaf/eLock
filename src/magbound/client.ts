@@ -4,13 +4,13 @@ const config = {
     minutesDefaultLockTime: 2,
     commands: {
         //TODO:
-        // * https://stackoverflow.com/questions/35038857/setting-query-string-using-fetch-get-request
         // * revamp lock / unlock / setTime commands -> all same endpoint "setLock" with different query params
         lock: "setLock?t_state=1",  // TODO should be able to be combined with setTime
         unlock: "setLock?t_state=0",
         setTime: "&i_state=", // does not work on it's own must be send with locking command
         reset: "reset",
-        state: "isAlive"
+        state: "isAlive",  // maybe better use getTimer
+        getState: "getTimer"
     }
 }
 
@@ -48,6 +48,28 @@ const state = async() => {
     return await execute(config.commands.state);
 }
 
+const getState = async () => {
+    const response = await execute(config.commands.getState);
+    const data = response.data.split(";");
+
+    const remainingMilliseconds = Number(data[0]);
+    const lockState = data[1];
+
+    if(!isLockedOrUnlocked(lockState))
+    {
+        throw new Error("Unknown lock state " + lockState); // TODO improve
+    }
+
+    return {
+        remainingSeconds: remainingMilliseconds / 1000,
+        state: lockState
+    }
+}
+
+function isLockedOrUnlocked(input: string): input is "Locked" | "Unlocked" {
+    return input === "Locked" || input === "Unlocked";
+}
+
 const setExactLockTime = (minutesToBeLockedUp: number) => {
     setDesiredLockTime(minutesToBeLockedUp);
 }
@@ -70,4 +92,4 @@ const execute = async(command: string) => {
 }
 
 
-export default {lock, unlock, reset, state, setExactLockTime, init};
+export default {lock, unlock, reset, state, setExactLockTime, getState, init};

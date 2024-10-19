@@ -11,19 +11,18 @@ export const magboundProxyConfig: config = {
             onConnect: function onConnect(this: WebSocket) {
                 console.log("Magbound connected")
                 this.send(JSON.stringify({ message: "Welcome to the magbound server!" }))
+                this.send(JSON.stringify({ chat: "Welcome chat!" }))
 
                 init(); // TODO maybe set xtoys to client.ts parameter values
             },
-            onData: async function (data: RawData) {
+            onData: async function (this: WebSocket, data: RawData) {
                 try {
                     const input = JSON.parse(data.toString());
-                    console.debug("Magbound data", input);
-                    await process(input).catch(error => {
+                    await process(input, this).catch(error => {
                         // TODO::
                         //  * unlock!!
                         //  * send message to xtoys
                         console.error("Error while executing command ", error);
-
                     });
                 } catch (error: unknown) {
                     // handle error -> unlock lock
@@ -31,11 +30,6 @@ export const magboundProxyConfig: config = {
 
 
             },
-
-            // onData: (this: WebSocket, data: RawData) => {
-            //     console.log("Magbound data", data);
-            //     this.send("hello");
-            // },
             onDisconnect: () => {console.log("Magbound disconnected xxx")},
             onError: (): void => console.log("Magbound error"),
         }

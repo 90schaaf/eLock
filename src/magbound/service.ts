@@ -1,23 +1,35 @@
 import client  from "./client";
+import {WebSocket} from "ws";
 
-// TODO General remark: add function to notify xtoys when lock changes state from locked to unlocked
+let  timeUpdater: NodeJS.Timeout;
 
 export const init = () => {
     client.init();
 }
 
-export const process =  async (input: unknown) => {
+export const process =  async (input: unknown, websocket: WebSocket) => {
     if(isLockCommand(input))
     {
         if(isUnlockingCommand(input))
         {
             await client.unlock()
+
+            clearInterval(timeUpdater);
             return;
         }
 
         if(isLockingCommand(input))
         {
             await client.lock();
+
+            websocket.send(JSON.stringify({aa: {bb: "cc", dd: "ee"}}))
+
+            timeUpdater = global.setInterval(async () => {
+                const state = await client.getState();
+                const message = {updateLocktime: state.remainingSeconds};
+                websocket.send(JSON.stringify(message));
+            },  1000);
+
             return
         }
 

@@ -21,6 +21,8 @@ export function init(config: config): void {
         socket.on("close", config.commands.onDisconnect);
         socket.on("message", config.commands.onData)
         socket.on("error", config.commands.onError);
+
+
     })
 
 
