@@ -146,14 +146,6 @@
         "name": "Remaining time",
         "type": "timer",
         "requiredExpression": "{lockState}==\"Lock\""
-    },
-    {
-        "id": "test",
-        "up": "1",
-        "down": "0",
-        "name": "test",
-        "type": "push",
-        "value": "1"
     }
 ],
     "controlPresets": [],
@@ -162,5 +154,5 @@
     "voices": {},
     "patterns": {}
 },
-    "customFunctions": "function sendTestCommand() {\n//callAction({\"type\":\"updateComponent\",\"channel\":\"generic-custom-toy-a\",\"action\":\"setValue\",\"key\":\"testJS\",\"value\":\"hi\"});\ncallAction({\"type\":\"updateComponent\",\"channel\":\"generic-custom-toy-a\",\"action\":\"setValue\",\"key\":\"testJS\",\"value\":{test:\"hiJs\", test2: \"what?\"}});\n}\n\n\nfunction lock() {\n    sendData({lockState: \"locking\"})\n}\n\n\nfunction unlock() {\n    sendData({lockState: \"unlocking\"})\n}\n\n\nfunction sendData(data) {\n    callAction({\"type\":\"updateComponent\",\"channel\":\"generic-custom-toy-a\",\"action\":\"setValue\",\"key\":\"command\", \"value\":data});\n}\n"
+    "customFunctions": "function sendTestCommand() {\n//callAction({\"type\":\"updateComponent\",\"channel\":\"generic-custom-toy-a\",\"action\":\"setValue\",\"key\":\"testJS\",\"value\":\"hi\"});\ncallAction({\"type\":\"updateComponent\",\"channel\":\"generic-custom-toy-a\",\"action\":\"setValue\",\"key\":\"testJS\",\"value\":{test:\"hiJs\", test2: \"what?\"}});\n}\n\n\nfunction lock() {\n    sendData({type: \"magbound\", lockState: \"locked\", secondsToBeLockedUp: 300})\n}\n\n\nfunction unlock() {\n    sendData({type: \"magbound\", lockState: \"unlocked\"})\n}\n\n\nfunction sendData(data) {\n    callAction({\"type\":\"updateComponent\",\"channel\":\"generic-custom-toy-a\",\"action\":\"setValue\",\"key\":\"command\", \"value\":data});\n}\n"
 }

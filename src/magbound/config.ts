@@ -16,7 +16,9 @@ export const magboundProxyConfig: config = {
             onData: async function (this: WebSocket, data: RawData) {
                 try {
                     const input = JSON.parse(data.toString());
-                    await process(input, this).catch(error => {
+                    const command = input.command;
+
+                    await process(command, this).catch(error => {
                         // TODO::
                         //  * unlock!!
                         //  * send message to xtoys
