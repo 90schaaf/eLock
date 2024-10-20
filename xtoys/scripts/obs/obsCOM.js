@@ -45,7 +45,7 @@
             "type": "speech-synthesis"
     },
     "generic-custom-toy-a": {
-        "name": "magbound",
+        "name": "obs",
             "type": "generic-custom-toy"
     }
 },
