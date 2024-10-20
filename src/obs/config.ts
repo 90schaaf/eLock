@@ -9,7 +9,10 @@ export const obsProxyConfig: config = {
     commands: {
         onConnect: async function onConnect(this: WebSocket) {
             sendChatMessage("Welcome to an interactive experience where you can control my cameras as well.", this, "System")
-            await init();
+            await init().catch(() => {
+                console.error("Error: OBS probably not started");
+                this.close();
+            })
         },
         onData: async function (this: WebSocket, data: RawData) {
             try {
