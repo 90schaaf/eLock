@@ -19,15 +19,37 @@ export async function handleError(message: string, webSocket: WebSocket) {
     sendChatMessage("Attention! Some error happened.\nError: " + error, webSocket, "System");
 }
 
-// function isOBSCommand(input: unknown); input is obsCommand {
-//     return typeof input === 'object' &&
-//         input !== null &&
-//         'type' in input &&
-//         input.type === 'obs';
-// }
-
 export const process = async (input: unknown, websocket: WebSocket) => {
-    // if(!isOBSCommand(input)) {
-    //     return;
-    // }
+    if(!isOBSCommand(input)) {
+        return;
+    }
+
+    if(isSwitchSceneCommand(input)) {
+        sendChatMessage("Switching to scene " + input.scene, websocket, "System");
+        await client.switchToScene(input.scene);
+        return;
+    }
+
+    console.error("Error: Could not process obs command ", input);
 }
+
+function isOBSCommand(input: unknown): input is obsCommand {
+    return typeof input === 'object' &&
+        input !== null &&
+        'type' in input &&
+        input.type === 'obs';
+}
+
+function isSwitchSceneCommand(command: obsCommand): command is switchSceneCommand {
+    return 'scene' in command;
+}
+
+// commands
+type obsCommand = {
+    type: "obs";
+}
+
+type switchSceneCommand = obsCommand & {
+    scene: string;
+}
+
